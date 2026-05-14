@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class PlayerBehaviour : MonoBehaviour
 {
     [SerializeField] private float moveSpeed;
@@ -17,16 +18,18 @@ public class PlayerBehaviour : MonoBehaviour
         inputManager = new InputManager();
         playerAnim = GetComponent<PlayerAnimation>();
         rigidbody = GetComponent<Rigidbody>();
+
+        inputManager.OnPlayerAttack += HandleAttack;
     }
 
     private void FixedUpdate()
     {
-        Debug.Log("Linear Velocity Y: " + rigidbody.linearVelocity.y);
         HandleMove();
 
         CheckMovingForAnimation();
     }
     
+    #region Player movement according to cmera position
     private void HandleMove()
     {
         float moveX = inputManager.GetInputDirection().x * moveSpeed * Time.deltaTime;
@@ -45,13 +48,16 @@ public class PlayerBehaviour : MonoBehaviour
 
     private void RotatePlayerAccordingToInput(Vector3 cameraRelativeMovement)
     {
+        //Pegando a posição do input (pra onde o jogador está olhando)
         Vector3 pointToLookAt;
         pointToLookAt.x = cameraRelativeMovement.x;
         pointToLookAt.y = 0;
         pointToLookAt.z = cameraRelativeMovement.z;
 
+        //pegando minha rotação atual
         Quaternion currentRotation = transform.rotation;
 
+        //rotacionando player
         if (moveDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(pointToLookAt);
@@ -79,11 +85,11 @@ public class PlayerBehaviour : MonoBehaviour
 
         return directionToMovePlayer;
     }
+    #endregion
 
     private void CheckMovingForAnimation()
     {
-        Vector3 linearVelocityMagnitudeXZ = new  Vector3(rigidbody.linearVelocity.x, 0, rigidbody.linearVelocity.z); 
-        Debug.LogWarning("Player Linear Velocity " +  linearVelocityMagnitudeXZ);
+        Vector3 linearVelocityMagnitudeXZ = new  Vector3(rigidbody.linearVelocity.x, 0, rigidbody.linearVelocity.z);
         if (linearVelocityMagnitudeXZ.magnitude != 0.0f)
         {
             playerAnim.SetIsMoving(true);
@@ -92,5 +98,10 @@ public class PlayerBehaviour : MonoBehaviour
         {
             playerAnim.SetIsMoving(false);
         }
+    }
+
+    private void HandleAttack()
+    {
+        playerAnim.AttackTrigger();
     }
 }
