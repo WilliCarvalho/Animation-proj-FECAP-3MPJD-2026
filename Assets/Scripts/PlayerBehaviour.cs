@@ -43,6 +43,8 @@ public class PlayerBehaviour : MonoBehaviour
         rigidbody.linearVelocity = 
             new Vector3(cameraRelativeMovement.x, rigidbody.linearVelocity.y, cameraRelativeMovement.z);
         
+        playerAnim.SetMoveSpeedAnimParam(moveDirection.magnitude);
+        
         RotatePlayerAccordingToInput(cameraRelativeMovement);
     }
 
